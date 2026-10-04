@@ -318,10 +318,10 @@
               "date": "Last Weekend",
               "categories": {
                 "SportPesa Jackpot (13 Games)": [
-                  { "prediction": "(JP#1X212X1X21X21)", "won": 12, "lost": 1, "total": 13, "bonus": true }
+                  { "prediction": "(JP#1X212X1X21X21)", "won": 12, "lost": 1, "total": 13, "bonus": true, "mask": "WWWWWWWLWWWWW" }
                 ],
                 "SportPesa Mega Jackpot (17 Games)": [
-                  { "prediction": "(JP#112X21X1221X21XX1)", "won": 15, "lost": 2, "total": 17, "bonus": true }
+                  { "prediction": "(JP#112X21X1221X21XX1)", "won": 15, "lost": 2, "total": 17, "bonus": true, "mask": "WWWWLWWWWLWWWWWWW" }
                 ]
               }
             }
@@ -615,9 +615,22 @@
                         let detailText = (wonCount !== undefined && lostCount !== undefined) 
                             ? `<small class="d-block mt-1" style="font-size: 0.75rem;"><span style="color: var(--green);">Won: ${wonCount}</span> | <span style="color: var(--red);">Lost: ${lostCount}</span></small>` 
                             : '';
+                            
+                        // Color prediction string characters based on an optional 'mask' string ('W' for won, 'L' for lost)
+                        let predictionHtml = m.prediction;
+                        const slipMatch = m.prediction.match(/\(JP#(.*?)\)/);
+                        if (slipMatch && m.mask && m.mask.length === slipMatch[1].length) {
+                            const slipChars = slipMatch[1].split('');
+                            const coloredSlip = slipChars.map((char, index) => {
+                                if (m.mask[index] === 'W') return `<span style="color: var(--green);">${char}</span>`;
+                                if (m.mask[index] === 'L') return `<span style="color: var(--red);">${char}</span>`;
+                                return char;
+                            }).join('');
+                            predictionHtml = `(JP#${coloredSlip})`;
+                        }
 
                         tableRows += `<tr>
-                            <td style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">${m.prediction}</td>
+                            <td style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">${predictionHtml}</td>
                             <td>
                                 <span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${resultText}</span>
                                 ${detailText}
