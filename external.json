@@ -195,7 +195,10 @@
       "title": "SportPesa & Betika Jackpots", 
       "type": "jackpot", 
       "jackpots": [
-        { "bookmaker": "SportPesa Mega", "amount_kes": 200 }
+        { "bookmaker": "SportPesa Jackpot 1 SLIP", "amount_kes": 200 },
+        { "bookmaker": "SportPesa Jackpot 2 SLIPS", "amount_kes": 300 },
+        { "bookmaker": "SportPesa Jackpot 3 SLIPS", "amount_kes": 400 },
+        { "bookmaker": "SportPesa Jackpot 4 SLIPS", "amount_kes": 500 }
       ]
     }
   ],
