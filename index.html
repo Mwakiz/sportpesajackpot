@@ -613,7 +613,7 @@
                         const badgeColor = isWon ? 'var(--green)' : 'var(--red)';
 
                         let detailText = (wonCount !== undefined && lostCount !== undefined) 
-                            ? `<small class="d-block text-muted mt-1" style="font-size: 0.75rem;">Won: ${wonCount} | Lost: ${lostCount}</small>` 
+                            ? `<small class="d-block mt-1" style="font-size: 0.75rem;"><span style="color: var(--green);">Won: ${wonCount}</span> | <span style="color: var(--red);">Lost: ${lostCount}</span></small>` 
                             : '';
 
                         tableRows += `<tr>
