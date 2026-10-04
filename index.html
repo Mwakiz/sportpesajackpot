@@ -110,7 +110,7 @@
 
         .btn-custom {
             background: linear-gradient(135deg, var(--green) 0%, #00B0FF 100%);
-            color: #1455d9; font-weight: 700; border-radius: 10px; padding: 10px 20px;
+            color: #0B0E14; font-weight: 700; border-radius: 10px; padding: 10px 20px;
             transition: all 0.3s ease; border: none; box-shadow: 0 4px 15px var(--green-glow);
             text-transform: uppercase; font-size: 0.9rem; text-decoration: none; display: inline-block;
         }
@@ -225,7 +225,7 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3 class="modal-title" id="pay-modal-title">Buy Tips</h3>
+                            <h3 class="modal-title" id="pay-modal-title">Unlock Package</h3>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body p-4">
@@ -265,7 +265,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // DEFAULT FALLBACK DATA (Strictly Jackpot / Mega Jackpot structure)
+        // DEFAULT DATA STRUCTURE WITH FLEXIBLE WON/LOST COUNTS AND CLEAN UNLOCK PRICING
         const defaultData = {
           "till_info": {
             "name": "Quick Call Selections", "number": "5150225",
@@ -318,10 +318,10 @@
               "date": "Last Weekend",
               "categories": {
                 "SportPesa Jackpot (13 Games)": [
-                  { "prediction": "(JP#1X212X1X21X21)", "result": "12/13 WON (Bonus)" }
+                  { "prediction": "(JP#1X212X1X21X21)", "won": 12, "lost": 1, "total": 13, "bonus": true }
                 ],
                 "SportPesa Mega Jackpot (17 Games)": [
-                  { "prediction": "(JP#112X21X1221X21XX1)", "result": "15/17 WON (Bonus)" }
+                  { "prediction": "(JP#112X21X1221X21XX1)", "won": 15, "lost": 2, "total": 17, "bonus": true }
                 ]
               }
             }
@@ -383,7 +383,7 @@
                 .then(res => res.json())
                 .then(data => { initAppWithData(data); })
                 .catch(err => {
-                    console.warn("External JSON file not found or failed to load. Using fallback data.", err);
+                    console.warn("External JSON file not found or failed to load. Using default fallback data.", err);
                     initAppWithData(defaultData);
                 });
 
@@ -496,7 +496,7 @@
                         rows += `<div class="d-flex justify-content-between align-items-center mt-3 mb-2 p-3 rounded flex-wrap gap-2" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
                                     <span style="font-weight:700; color:#fff; font-size:1.05rem;">${j.bookmaker}</span>
                                     ${!isJkpUnlocked ? 
-                                      `<button class="btn btn-sm btn-custom" onclick="openPaymentModal('${jackpotPkgId}', '${j.bookmaker}', ${j.amount_kes})" style="white-space: nowrap;">${formatLocalPrice(j.amount_kes)}</button>` :
+                                      `<button class="btn btn-sm btn-custom" onclick="openPaymentModal('${jackpotPkgId}', '${j.bookmaker}', ${j.amount_kes})" style="white-space: nowrap;">Unlock ${formatLocalPrice(j.amount_kes)}</button>` :
                                       `<span class="badge bg-success" style="font-size: 0.85rem; padding: 6px 12px; white-space: nowrap;">UNLOCKED</span>`
                                     }
                                  </div>
@@ -532,7 +532,6 @@
                                 </div>
                             `);
                         } else {
-                            // Generate random lock string of exact same length
                             const randomSlip = Array.from({length: slipStr.length}, () => ['1','X','2'][Math.floor(Math.random()*3)]).join('');
                             container.append(`
                                 <div class="locked-container p-3 mb-2 rounded shadow-sm" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--card-border);">
@@ -552,7 +551,7 @@
             currentPayingPackageId = pkgId; expectedKesAmount = kes;
             if (window.history && window.history.pushState) { window.history.pushState({ page: 'modal' }, ''); }
             
-            $('#pay-modal-title').text(title); $('.pay-section').hide();
+            $('#pay-modal-title').text(`Unlock: ${title}`); $('.pay-section').hide();
             const countryData = (appData.countries || []).find(c => c.code === currentCountry);
             const localAmountStr = formatLocalPrice(kes);
             
@@ -574,7 +573,7 @@
                     methodsHtml += `</ol></div>`;
                 });
                 const waBase = appData.contact_details.whatsapp_url.split('?')[0];
-                const waMsg = encodeURIComponent(`Hello, I have paid ${localAmountStr} for ${title} from ${countryData.name}. Here is my mobile money payment confirmation:`);
+                const waMsg = encodeURIComponent(`Hello, I have paid ${localAmountStr} to unlock ${title} from ${countryData.name}. Here is my mobile money payment confirmation:`);
                 const waUrl = `${waBase}?text=${waMsg}`;
                 methodsHtml += `<div class="p-3 rounded text-center mb-3" style="background: rgba(0, 230, 118, 0.12); border: 1px solid var(--green);">
                         <p class="mb-2" style="font-size:0.9rem;"><strong>After sending payment:</strong> Copy and forward your payment confirmation SMS to WhatsApp to get access instantly.</p>
@@ -597,13 +596,32 @@
                     let tableRows = '';
                     
                     matches.forEach(m => {
-                        const isWon = m.result.includes('WON');
+                        let wonCount = m.won;
+                        let lostCount = m.lost;
+                        let totalGames = m.total || ((wonCount !== undefined && lostCount !== undefined) ? wonCount + lostCount : null);
+                        
+                        let resultText = m.result;
+                        if (!resultText && wonCount !== undefined && totalGames !== null) {
+                            const isWon = (lostCount === 0) || (wonCount >= totalGames - 3);
+                            const bonusText = m.bonus ? ' (Bonus)' : '';
+                            const status = isWon ? 'WON' : 'LOST';
+                            resultText = `${wonCount}/${totalGames} ${status}${bonusText}`;
+                        }
+
+                        const isWon = resultText ? resultText.toUpperCase().includes('WON') : false;
                         const badgeBg = isWon ? 'rgba(0,230,118,0.2)' : 'rgba(255,82,82,0.2)';
                         const badgeColor = isWon ? 'var(--green)' : 'var(--red)';
 
+                        let detailText = (wonCount !== undefined && lostCount !== undefined) 
+                            ? `<small class="d-block text-muted mt-1" style="font-size: 0.75rem;">Won: ${wonCount} | Lost: ${lostCount}</small>` 
+                            : '';
+
                         tableRows += `<tr>
                             <td style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">${m.prediction}</td>
-                            <td><span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${m.result}</span></td>
+                            <td>
+                                <span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${resultText}</span>
+                                ${detailText}
+                            </td>
                         </tr>`;
                     });
 
