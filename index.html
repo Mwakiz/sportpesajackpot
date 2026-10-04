@@ -110,9 +110,9 @@
 
         .btn-custom {
             background: linear-gradient(135deg, var(--green) 0%, #00B0FF 100%);
-            color: #1455d9; font-weight: 700; border-radius: 10px; padding: 12px 24px;
+            color: #1455d9; font-weight: 700; border-radius: 10px; padding: 10px 20px;
             transition: all 0.3s ease; border: none; box-shadow: 0 4px 15px var(--green-glow);
-            text-transform: uppercase; font-size: 0.95rem; text-decoration: none; display: inline-block;
+            text-transform: uppercase; font-size: 0.9rem; text-decoration: none; display: inline-block;
         }
         .btn-custom:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4); color: #0B0E14; }
 
@@ -122,14 +122,40 @@
         .table th { background: rgba(255, 255, 255, 0.05); color: var(--gold); font-weight: 700; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .table td { vertical-align: middle; padding: 14px 15px; font-size: 0.95rem; border-color: rgba(255, 255, 255, 0.04); }
 
-        .locked-container { position: relative; display: block; user-select: none; }
-        .blurred-teaser { filter: blur(4px); opacity: 0.5; pointer-events: none; }
+        /* SLIP DISPLAY & BLUR STYLING */
+        .slip-box {
+            word-break: break-all;
+            white-space: normal;
+            font-family: monospace;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        .locked-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            user-select: none;
+        }
+        .blurred-teaser {
+            filter: blur(3px);
+            opacity: 0.85;
+            pointer-events: none;
+            word-break: break-all;
+            white-space: normal;
+            font-family: monospace;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: var(--gold);
+        }
         .lock-pill {
             display: inline-flex; align-items: center; gap: 4px;
-            background: rgba(255, 215, 0, 0.12); border: 1px solid rgba(255, 215, 0, 0.35);
-            color: var(--gold); font-size: 0.72rem; font-weight: 700; padding: 2px 8px;
+            background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.4);
+            color: var(--gold); font-size: 0.78rem; font-weight: 700; padding: 4px 10px;
             border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px); flex-shrink: 0; white-space: nowrap;
         }
 
         .modal-content { background: var(--bg); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; }
@@ -467,11 +493,11 @@
                         const jackpotPkgId = `jackpot-${j.bookmaker.replace(/\s+/g, '-').toLowerCase()}`;
                         const isJkpUnlocked = unlockedPackages.includes(jackpotPkgId);
                         
-                        rows += `<div class="d-flex justify-content-between align-items-center mt-4 mb-2 p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
-                                    <span style="font-weight:700; color:#fff; font-size:1.1rem;">${j.bookmaker}</span>
+                        rows += `<div class="d-flex justify-content-between align-items-center mt-3 mb-2 p-3 rounded flex-wrap gap-2" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
+                                    <span style="font-weight:700; color:#fff; font-size:1.05rem;">${j.bookmaker}</span>
                                     ${!isJkpUnlocked ? 
-                                      `<button class="btn btn-sm btn-custom" onclick="openPaymentModal('${jackpotPkgId}', '${j.bookmaker}', ${j.amount_kes})">${formatLocalPrice(j.amount_kes)}</button>` :
-                                      `<span class="badge bg-success" style="font-size: 0.9rem; padding: 6px 12px;">UNLOCKED</span>`
+                                      `<button class="btn btn-sm btn-custom" onclick="openPaymentModal('${jackpotPkgId}', '${j.bookmaker}', ${j.amount_kes})" style="white-space: nowrap;">${formatLocalPrice(j.amount_kes)}</button>` :
+                                      `<span class="badge bg-success" style="font-size: 0.85rem; padding: 6px 12px; white-space: nowrap;">UNLOCKED</span>`
                                     }
                                  </div>
                                  <div id="slips-${jackpotPkgId}"></div>`;
@@ -480,7 +506,7 @@
                     container.append(`
                         <section class="card" data-pkg-id="${pkg.id}">
                             <div class="card-header" style="background:${accentGrad}; color:#000;">${pkg.title}</div>
-                            <div class="card-body px-4 py-2">${rows}</div>
+                            <div class="card-body px-3 py-2">${rows}</div>
                         </section>`);
                 }
             });
@@ -497,41 +523,27 @@
                     container.empty();
                     
                     const isUnlocked = unlockedPackages.includes(pkgId) && currentCountry === 'ke';
-
-                    // Retrieve pricing & bookmaker information for the button
-                    let priceKes = 0;
-                    let bookmakerName = 'Jackpot Tips';
-                    appData.packages.forEach(p => {
-                        (p.jackpots || []).forEach(j => {
-                            if (`jackpot-${j.bookmaker.replace(/\s+/g, '-').toLowerCase()}` === pkgId) {
-                                priceKes = j.amount_kes;
-                                bookmakerName = j.bookmaker;
-                            }
-                        });
-                    });
                     
-                    if (isUnlocked) {
-                        (data.slips || []).forEach(slipStr => {
-                            container.append(`<div class="p-3 mb-2 rounded text-center position-relative shadow-sm" style="background: rgba(0,230,118,0.1); border: 1px solid var(--green); color: var(--green); font-family: monospace; font-size: 1.25rem; letter-spacing: 3px; font-weight: bold;">(JP#${slipStr})</div>`);
-                        });
-                    } else {
-                        // Group locked slips and wrap them in a clickable container with a buy button overlay
-                        let blurredSlipsHTML = '';
-                        (data.slips || []).forEach(slipStr => {
+                    (data.slips || []).forEach(slipStr => {
+                        if (isUnlocked) {
+                            container.append(`
+                                <div class="p-3 mb-2 rounded text-center shadow-sm slip-box" style="background: rgba(0,230,118,0.1); border: 1px solid var(--green); color: var(--green); font-size: 1.15rem;">
+                                    (JP#${slipStr})
+                                </div>
+                            `);
+                        } else {
+                            // Generate random lock string of exact same length
                             const randomSlip = Array.from({length: slipStr.length}, () => ['1','X','2'][Math.floor(Math.random()*3)]).join('');
-                            blurredSlipsHTML += `<div class="mb-2" style="font-size: 1.25rem; font-weight: bold; letter-spacing: 3px; font-family: monospace;">(JP#${randomSlip})</div>`;
-                        });
-
-                        container.append(`<div class="locked-container d-block p-4 mb-2 rounded text-center shadow-sm" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--card-border); position: relative; overflow: hidden; cursor: pointer;" onclick="openPaymentModal('${pkgId}', '${bookmakerName}', ${priceKes})">
-                            <div class="blurred-teaser" style="filter: blur(5px); opacity: 0.4;">
-                                ${blurredSlipsHTML}
-                            </div>
-                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(11, 14, 20, 0.5); z-index: 10;">
-                                <span style="font-size: 2rem; margin-bottom: 10px;">🔒</span>
-                                <button class="btn btn-custom px-4 py-2" style="font-size: 1.1rem; pointer-events: none;">Unlock for ${formatLocalPrice(priceKes)}</button>
-                            </div>
-                        </div>`);
-                    }
+                            container.append(`
+                                <div class="locked-container p-3 mb-2 rounded shadow-sm" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--card-border);">
+                                    <span class="blurred-teaser" style="font-size: 1.15rem;">
+                                        (JP#${randomSlip})
+                                    </span> 
+                                    <span class="lock-pill">🔒 Locked</span>
+                                </div>
+                            `);
+                        }
+                    });
                 }
             });
         }
@@ -590,7 +602,7 @@
                         const badgeColor = isWon ? 'var(--green)' : 'var(--red)';
 
                         tableRows += `<tr>
-                            <td style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left;">${m.prediction}</td>
+                            <td style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">${m.prediction}</td>
                             <td><span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${m.result}</span></td>
                         </tr>`;
                     });
