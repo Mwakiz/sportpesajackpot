@@ -67,33 +67,48 @@
     "jackpot-mega-jackpot-3-slips": { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X", "111X221X2X1X2XX12"] },
     "jackpot-mega-jackpot-4-slips": { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X", "111X221X2X1X2XX12", "XX21X122112X11X22"] }
   },
-  
-  "featured_bonus": {
-    "brand": "SportPesa",
-    "title_1": "MIDWEEK",
-    "title_2": "JACKPOT",
-    "title_3": "BONUSES",
-    "tiers": [
-        { "label": "12/13 CORRECT PREDICTIONS", "amount": "1,069,828" },
-        { "label": "11/13 CORRECT PREDICTIONS", "amount": "81,398" },
-        { "label": "10/13 CORRECT PREDICTIONS", "amount": "10,797" }
-    ],
-    "combo_label": "WINNING COMBO",
-    "combo_string": "1,1,2,2,1,X,X,2,2,1,2,2,X"
-  },
 
   "history": [
     {
       "date": "Last Weekend",
       "categories": {
-        "SportPesa Jackpot (13 Games)": [
+        "SportPesa Jackpot (13 Games)": {
+          "bonus": {
+            "title_1": "MIDWEEK",
+            "title_2": "JACKPOT",
+            "title_3": "BONUSES",
+            "tiers": [
+                { "label": "12/13 CORRECT", "amount": "1,069,828" },
+                { "label": "11/13 CORRECT", "amount": "81,398" },
+                { "label": "10/13 CORRECT", "amount": "10,797" }
+            ],
+            "combo_label": "WINNING COMBO",
+            "combo_string": "1,1,2,2,1,X,X,2,2,1,2,2,X"
+          },
+          "matches": [
             { "prediction": "(JP#1X212X1X21X21)", "result": "12/13 WON (Bonus)" },
             { "prediction": "(JP#211X221XX1121)", "result": "11/13 WON (Bonus)" }
-        ],
-        "SportPesa Mega Jackpot (17 Games)": [
+          ]
+        },
+        "SportPesa Mega Jackpot (17 Games)": {
+          "bonus": {
+            "title_1": "MEGA",
+            "title_2": "JACKPOT",
+            "title_3": "BONUSES",
+            "tiers": [
+                { "label": "15/17 CORRECT", "amount": "5,069,828" },
+                { "label": "14/17 CORRECT", "amount": "581,398" },
+                { "label": "13/17 CORRECT", "amount": "90,797" },
+                { "label": "12/17 CORRECT", "amount": "15,500" }
+            ],
+            "combo_label": "WINNING COMBO",
+            "combo_string": "1,X,2,1,X,2,1,2,2,1,X,2,1,1,2,X,1"
+          },
+          "matches": [
             { "prediction": "(JP#112X21X1221X21XX1)", "result": "15/17 WON (Bonus)" },
             { "prediction": "(JP#X2112X1121221XX21)", "result": "13/17 WON (Bonus)" }
-        ]
+          ]
+        }
       }
     }
   ]
