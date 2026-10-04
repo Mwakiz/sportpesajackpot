@@ -170,6 +170,44 @@
         /* History Badge Categories */
         .badge-midweek { background: rgba(0, 176, 255, 0.15); color: var(--blue); border: 1px solid var(--blue); }
         .badge-mega { background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+
+        /* BONUS POSTER CARD STYLES */
+        .bonus-card {
+            background: radial-gradient(circle at center, #001f80 0%, #00092b 100%);
+            border: 2px solid #002aa3;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .bonus-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+            pointer-events: none; z-index: 0;
+        }
+        .bonus-content-wrapper { position: relative; z-index: 1; }
+        .bonus-title-midweek { color: #00d2ff; font-family: 'Paytone One', sans-serif; font-size: clamp(1.8rem, 5vw, 2.2rem); letter-spacing: 2px; margin-bottom: -5px;}
+        .bonus-title-jackpot { color: #FFD700; font-family: 'Paytone One', sans-serif; font-size: clamp(3rem, 10vw, 4.5rem); text-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); line-height: 1; margin-bottom: 5px;}
+        .bonus-title-bonuses { color: #ffffff; font-family: 'Paytone One', sans-serif; font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: 4px; margin-bottom: 35px;}
+        
+        .bonus-tier { margin-bottom: 25px; }
+        .bonus-tier-label { font-size: 0.75rem; color: #a3c2ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0; font-weight: bold;}
+        .bonus-tier-amount { 
+            color: #FFD700; font-family: 'Paytone One', sans-serif; font-size: clamp(2rem, 7vw, 3.2rem); 
+            display: flex; justify-content: center; align-items: baseline; gap: 8px; 
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3); margin-top: -5px;
+        }
+        .bonus-tier-currency { font-size: clamp(1rem, 3vw, 1.3rem); font-family: 'Josefin Sans', sans-serif; color: #e0e0e0;}
+
+        .bonus-combo-container { margin-top: 40px; }
+        .bonus-combo-label { font-size: 1.1rem; color: #ffffff; letter-spacing: 2px; margin-bottom: 5px; font-weight: 600;}
+        .bonus-combo-string { font-family: 'Paytone One', sans-serif; color: #FFD700; font-size: clamp(1.1rem, 4vw, 1.5rem); letter-spacing: 4px;}
+        .sportpesa-logo { width: 140px; margin-bottom: 20px; display: block; opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -270,7 +308,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // DEFAULT DATA STRUCTURE WITH FLEXIBLE WON/LOST COUNTS AND CLEAN UNLOCK PRICING
+        // DEFAULT DATA STRUCTURE WITH FEATURED BONUS POSTER LOGIC
         const defaultData = {
           "till_info": {
             "name": "Quick Call Selections", "number": "5150225",
@@ -318,13 +356,23 @@
             "jackpot-mega-jackpot-3-slips":       { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X", "111X221X2X1X2XX12"] },
             "jackpot-mega-jackpot-4-slips":       { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X", "111X221X2X1X2XX12", "XX21X122112X11X22"] }
           },
+          "featured_bonus": {
+            "brand": "SportPesa",
+            "title_1": "MIDWEEK",
+            "title_2": "JACKPOT",
+            "title_3": "BONUSES",
+            "tiers": [
+                { "label": "12/13 CORRECT PREDICTIONS", "amount": "1,069,828" },
+                { "label": "11/13 CORRECT PREDICTIONS", "amount": "81,398" },
+                { "label": "10/13 CORRECT PREDICTIONS", "amount": "10,797" }
+            ],
+            "combo_label": "WINNING COMBO",
+            "combo_string": "1,1,2,2,1,X,X,2,2,1,2,2,X"
+          },
           "history": [
             {
               "date": "Last Weekend",
               "categories": {
-                "Midweek Jackpot (13 Games)": [
-                  { "prediction": "(JP#1X212X1X21X21)", "won": 12, "lost": 1, "total": 13, "bonus": true, "mask": "WWWWWWWLWWWWW" }
-                ],
                 "Mega Jackpot (17 Games)": [
                   { "prediction": "(JP#112X21X1221X21XX1)", "won": 15, "lost": 2, "total": 17, "bonus": true, "mask": "WWWWLWWWWLWWWWWWW" }
                 ]
@@ -462,7 +510,7 @@
             $('#country-screen').hide(); $('#main-app').fadeIn();
             
             populateContactsAndTill(appData); renderFreeTip(appData.free_tip);
-            renderPackages(appData.packages); renderTips(); renderHistory(appData.history);
+            renderPackages(appData.packages); renderTips(); renderHistory(appData);
         };
 
         const COUNTRY_FLAGS = { 'england': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'kenya': '🇰🇪', 'uganda': '🇺🇬', 'tanzania': '🇹🇿', 'rwanda': '🇷🇼', 'zambia': '🇿🇲', 'malawi': '🇲🇼' };
@@ -552,16 +600,53 @@
             });
         }
 
-        function renderHistory(data) {
+        function renderHistory(appDataFull) {
             const container = $('#history-container'); container.empty();
-            if (!data || data.length === 0) { container.html('<p class="text-center text-muted">No historical records available.</p>'); return; }
+            const data = appDataFull.history;
+            const featuredBonus = appDataFull.featured_bonus;
 
+            // Render Featured Bonus Poster if available
+            if (featuredBonus) {
+                let tiersHtml = '';
+                featuredBonus.tiers.forEach(tier => {
+                    tiersHtml += `
+                        <div class="bonus-tier">
+                            <p class="bonus-tier-label">${tier.label}</p>
+                            <div class="bonus-tier-amount"><span class="bonus-tier-currency">KSH.</span> ${tier.amount}</div>
+                        </div>
+                    `;
+                });
+
+                container.append(`
+                    <div class="bonus-card shadow-lg">
+                        <div class="bonus-content-wrapper">
+                            <div style="font-family: 'Paytone One', sans-serif; font-size: 1.5rem; margin-bottom: 20px; color: #fff; letter-spacing: -1px;">${featuredBonus.brand}</div>
+                            <div class="bonus-title-midweek">${featuredBonus.title_1}</div>
+                            <div class="bonus-title-jackpot">${featuredBonus.title_2}</div>
+                            <div class="bonus-title-bonuses">${featuredBonus.title_3}</div>
+                            
+                            ${tiersHtml}
+                            
+                            <div class="bonus-combo-container">
+                                <div class="bonus-combo-label">${featuredBonus.combo_label}</div>
+                                <div class="bonus-combo-string">${featuredBonus.combo_string}</div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+
+            if (!data || data.length === 0) { 
+                if(!featuredBonus) container.html('<p class="text-center text-muted">No historical records available.</p>'); 
+                return; 
+            }
+
+            // Render regular table history below the poster
             data.forEach(day => {
                 for (const catName in day.categories) {
                     const matches = day.categories[catName];
                     let tableRows = '';
                     
-                    // Determine styling based on category name
                     let isMega = catName.toLowerCase().includes('mega');
                     let headerBadge = isMega 
                         ? `<span class="badge badge-mega px-3 py-1 rounded-pill" style="font-size: 0.9rem;">🏆 ${catName}</span>` 
@@ -588,7 +673,6 @@
                             ? `<small class="d-block mt-1" style="font-size: 0.75rem;"><span style="color: var(--green);">Won: ${wonCount}</span> | <span style="color: var(--red);">Lost: ${lostCount}</span></small>` 
                             : '';
                             
-                        // Color prediction string characters based on an optional 'mask' string ('W' for won, 'L' for lost)
                         let predictionHtml = m.prediction;
                         const slipMatch = m.prediction.match(/\(JP#(.*?)\)/);
                         if (slipMatch && m.mask && m.mask.length === slipMatch[1].length) {
