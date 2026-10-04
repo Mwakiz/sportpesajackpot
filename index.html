@@ -170,44 +170,6 @@
         /* History Badge Categories */
         .badge-midweek { background: rgba(0, 176, 255, 0.15); color: var(--blue); border: 1px solid var(--blue); }
         .badge-mega { background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--gold); }
-
-        /* BONUS POSTER CARD STYLES */
-        .bonus-card {
-            background: radial-gradient(circle at center, #001f80 0%, #00092b 100%);
-            border: 2px solid #002aa3;
-            border-radius: 16px;
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-        .bonus-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
-            pointer-events: none; z-index: 0;
-        }
-        .bonus-content-wrapper { position: relative; z-index: 1; }
-        .bonus-title-midweek { color: #00d2ff; font-family: 'Paytone One', sans-serif; font-size: clamp(1.8rem, 5vw, 2.2rem); letter-spacing: 2px; margin-bottom: -5px;}
-        .bonus-title-jackpot { color: #FFD700; font-family: 'Paytone One', sans-serif; font-size: clamp(3rem, 10vw, 4.5rem); text-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); line-height: 1; margin-bottom: 5px;}
-        .bonus-title-bonuses { color: #ffffff; font-family: 'Paytone One', sans-serif; font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: 4px; margin-bottom: 35px;}
-        
-        .bonus-tier { margin-bottom: 25px; }
-        .bonus-tier-label { font-size: 0.75rem; color: #a3c2ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0; font-weight: bold;}
-        .bonus-tier-amount { 
-            color: #FFD700; font-family: 'Paytone One', sans-serif; font-size: clamp(2rem, 7vw, 3.2rem); 
-            display: flex; justify-content: center; align-items: baseline; gap: 8px; 
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3); margin-top: -5px;
-        }
-        .bonus-tier-currency { font-size: clamp(1rem, 3vw, 1.3rem); font-family: 'Josefin Sans', sans-serif; color: #e0e0e0;}
-
-        .bonus-combo-container { margin-top: 40px; }
-        .bonus-combo-label { font-size: 1.1rem; color: #ffffff; letter-spacing: 2px; margin-bottom: 5px; font-weight: 600;}
-        .bonus-combo-string { font-family: 'Paytone One', sans-serif; color: #FFD700; font-size: clamp(1.1rem, 4vw, 1.5rem); letter-spacing: 4px;}
-        .sportpesa-logo { font-family: 'Paytone One', sans-serif; font-size: 1.5rem; margin-bottom: 20px; color: #fff; letter-spacing: -1px; text-align: left; }
     </style>
 </head>
 <body>
@@ -308,7 +270,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // DEFAULT DATA FALLBACK
         const defaultData = {
           "till_info": { "name": "Quick Call Selections", "number": "5150225", "image": "https://www.safaricom.co.ke/images/MicrosoftTeams-image.jpg" },
           "contact_details": { "whatsapp_url": "https://wa.me/254713804279", "twitter_url": "https://twitter.com/victonic_sports", "telegram_url": "https://t.me/+GEkAL_4kqyJjNDc0" },
@@ -362,7 +323,6 @@
             }
         });
 
-        // PAYMENT MODAL TRIGGER FUNCTION
         window.openPaymentModal = function(pkgId, title, amount) {
             currentPayingPackageId = pkgId;
             expectedKesAmount = amount;
@@ -559,54 +519,53 @@
         function renderHistory(appDataFull) {
             const container = $('#history-container'); container.empty();
             const data = appDataFull.history;
-            const featuredBonus = appDataFull.featured_bonus;
-
-            // Render Featured Bonus Poster First
-            if (featuredBonus) {
-                let tiersHtml = '';
-                featuredBonus.tiers.forEach(tier => {
-                    tiersHtml += `
-                        <div class="bonus-tier">
-                            <p class="bonus-tier-label">${tier.label}</p>
-                            <div class="bonus-tier-amount"><span class="bonus-tier-currency">KSH.</span> ${tier.amount}</div>
-                        </div>
-                    `;
-                });
-
-                container.append(`
-                    <div class="bonus-card shadow-lg">
-                        <div class="bonus-content-wrapper">
-                            <div class="sportpesa-logo">${featuredBonus.brand}</div>
-                            <div class="bonus-title-midweek">${featuredBonus.title_1}</div>
-                            <div class="bonus-title-jackpot">${featuredBonus.title_2}</div>
-                            <div class="bonus-title-bonuses">${featuredBonus.title_3}</div>
-                            
-                            ${tiersHtml}
-                            
-                            <div class="bonus-combo-container">
-                                <div class="bonus-combo-label">${featuredBonus.combo_label}</div>
-                                <div class="bonus-combo-string">${featuredBonus.combo_string}</div>
-                            </div>
-                        </div>
-                    </div>
-                `);
-            }
 
             if (!data || data.length === 0) { 
-                if(!featuredBonus) container.html('<p class="text-center text-muted">No historical records available.</p>'); 
+                container.html('<p class="text-center text-muted">No historical records available.</p>'); 
                 return; 
             }
 
-            // Render Standard Table History below the bonus poster
             data.forEach(day => {
                 for (const catName in day.categories) {
-                    const matches = day.categories[catName];
+                    const categoryData = day.categories[catName];
+                    const matches = Array.isArray(categoryData) ? categoryData : (categoryData.matches || []);
+                    const bonus = categoryData.bonus || null;
+
                     let tableRows = '';
-                    
                     let isMega = catName.toLowerCase().includes('mega');
                     let headerBadge = isMega 
                         ? `<span class="badge badge-mega px-3 py-1 rounded-pill" style="font-size: 0.9rem;">🏆 ${catName}</span>` 
                         : `<span class="badge badge-midweek px-3 py-1 rounded-pill" style="font-size: 0.9rem;">⚽ ${catName}</span>`;
+
+                    let bonusHtml = '';
+                    if (bonus) {
+                        let tiersHtml = '';
+                        bonus.tiers.forEach(tier => {
+                            tiersHtml += `
+                                <div class="text-center px-2">
+                                    <div style="font-size: 0.65rem; color: #a3c2ff; font-weight: bold; white-space: nowrap;">${tier.label}</div>
+                                    <div style="color: #FFD700; font-family: 'Paytone One', sans-serif; font-size: 1.05rem; white-space: nowrap;">KSH. ${tier.amount}</div>
+                                </div>
+                            `;
+                        });
+
+                        bonusHtml = `
+                            <div class="m-2 p-3 d-flex flex-column align-items-center rounded" style="background: radial-gradient(circle at center, #001f80 0%, #00092b 100%); border: 1px solid #002aa3; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                                <div class="d-flex justify-content-center align-items-baseline w-100 mb-2 gap-2 flex-wrap text-center">
+                                    <span style="color:#00d2ff; font-family:'Paytone One', sans-serif; font-size: 1.1rem; letter-spacing: 1px;">${bonus.title_1}</span>
+                                    <span style="color:#FFD700; font-family:'Paytone One', sans-serif; font-size: 1.4rem; text-shadow: 0 2px 10px rgba(255,215,0,0.4);">${bonus.title_2}</span>
+                                    <span style="color:#fff; font-family:'Paytone One', sans-serif; font-size: 1.1rem; letter-spacing: 1px;">${bonus.title_3}</span>
+                                </div>
+                                <div class="d-flex flex-wrap justify-content-center gap-3 mb-3 w-100" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                                    ${tiersHtml}
+                                </div>
+                                <div class="text-center w-100" style="background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.15);">
+                                    <span style="font-size: 0.75rem; color: #fff; font-weight: 600; margin-right: 6px; text-transform: uppercase;">${bonus.combo_label}:</span>
+                                    <span style="font-family: 'Paytone One', sans-serif; color: #FFD700; font-size: 0.95rem; letter-spacing: 2px; word-break: break-all;">${bonus.combo_string}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
                     
                     matches.forEach((m, index) => {
                         let wonCount = m.won;
@@ -662,7 +621,8 @@
                                 ${headerBadge}
                             </div>
                             <div class="card-body p-0">
-                                <div class="table-responsive m-0">
+                                ${bonusHtml}
+                                <div class="table-responsive m-0 ${bonusHtml ? 'border-top border-secondary' : ''}">
                                     <table class="table m-0">
                                         <thead>
                                             <tr>
