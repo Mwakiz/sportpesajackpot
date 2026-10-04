@@ -190,20 +190,12 @@
 
   
   "packages": [
-    { "id": "draw1", "title": "1 Draw Package", "type": "flat", "price_kes": 150 },
-    { "id": "draw2", "title": "2 Draws Package", "type": "flat", "price_kes": 250 },
-    { "id": "draw3", "title": "3 Draws Package", "type": "flat", "price_kes": 350 },
-    { "id": "odds2", "title": "2 Odds Package", "type": "flat", "price_kes": 100 },
-    { "id": "odds5", "title": "5 Odds Package", "type": "flat", "price_kes": 200 },
-    { "id": "odds10", "title": "10 Odds Package", "type": "flat", "price_kes": 300 },
-    { "id": "vip1000", "title": "VIP Tips Package", "type": "flat", "price_kes": 1000, "isMostPopular": true },
     { 
       "id": "jackpot", 
       "title": "SportPesa & Betika Jackpots", 
       "type": "jackpot", 
       "jackpots": [
-        { "bookmaker": "SportPesa Mega", "amount_kes": 200 },
-        { "bookmaker": "Betika Midweek", "amount_kes": 150 }
+        { "bookmaker": "SportPesa Mega", "amount_kes": 200 }
       ]
     }
   ],
