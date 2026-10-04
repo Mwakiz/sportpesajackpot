@@ -207,7 +207,7 @@
         .bonus-combo-container { margin-top: 40px; }
         .bonus-combo-label { font-size: 1.1rem; color: #ffffff; letter-spacing: 2px; margin-bottom: 5px; font-weight: 600;}
         .bonus-combo-string { font-family: 'Paytone One', sans-serif; color: #FFD700; font-size: clamp(1.1rem, 4vw, 1.5rem); letter-spacing: 4px;}
-        .sportpesa-logo { width: 140px; margin-bottom: 20px; display: block; opacity: 0.9; }
+        .sportpesa-logo { font-family: 'Paytone One', sans-serif; font-size: 1.5rem; margin-bottom: 20px; color: #fff; letter-spacing: -1px; text-align: left; }
     </style>
 </head>
 <body>
@@ -308,77 +308,15 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // DEFAULT DATA STRUCTURE WITH FEATURED BONUS POSTER LOGIC
+        // DEFAULT DATA FALLBACK
         const defaultData = {
-          "till_info": {
-            "name": "Quick Call Selections", "number": "5150225",
-            "image": "https://images.unsplash.com/photo-1557992260-ec58e38d363c?auto=format&fit=crop&w=300&q=80"
-          },
-          "contact_details": {
-            "whatsapp_url": "https://wa.me/254713804279?text=I'm%20interested%20in%20your%20sure%20tips%20today",
-            "twitter_url": "https://twitter.com/victonic_sports",
-            "telegram_url": "https://t.me/+GEkAL_4kqyJjNDc0"
-          },
-          "countries": [
-            { "code": "ke", "name": "Kenya", "flag": "🇰🇪", "currency": "KSh", "rate_to_kes": 1, "type": "automated" },
-            { "code": "ug", "name": "Uganda", "flag": "🇺🇬", "currency": "UGX", "rate_to_kes": 28.5, "type": "manual",
-              "methods": [ { "provider": "MTN Uganda (to Safaricom M-Pesa)", "phone": "254713804279", "steps": ["Dial *165# on your mobile line.", "Select 1: Send Money.", "Choose 3: International Transfer.", "Select 1: Safaricom M-Pesa.", "Enter recipient phone number: {phone}", "Enter amount in UGX ({amount}) and state reason.", "Enter your MTN MoMo PIN to authorize."] } ]
-            }
-          ],
+          "till_info": { "name": "Quick Call Selections", "number": "5150225", "image": "https://www.safaricom.co.ke/images/MicrosoftTeams-image.jpg" },
+          "contact_details": { "whatsapp_url": "https://wa.me/254713804279", "twitter_url": "https://twitter.com/victonic_sports", "telegram_url": "https://t.me/+GEkAL_4kqyJjNDc0" },
+          "countries": [{ "code": "ke", "name": "Kenya", "flag": "🇰🇪", "currency": "KSh", "rate_to_kes": 1, "type": "automated" }],
           "free_tip": { "country": "England", "league": "Premier League", "time": "Today 17:00 EAT", "teamA": "Arsenal", "teamB": "Chelsea", "pick": "Pick: 1 & Over 1.5 Goals", "confidence": "92" },
-          "packages": [
-            {
-              "id": "jackpot", "title": "SportPesa Midweek Jackpot (13 Games)", "type": "jackpot", 
-              "jackpots": [
-                { "bookmaker": "SportPesa Jackpot 1 SLIP", "amount_kes": 200 },
-                { "bookmaker": "SportPesa Jackpot 2 SLIPS", "amount_kes": 300 },
-                { "bookmaker": "SportPesa Jackpot 3 SLIPS", "amount_kes": 400 },
-                { "bookmaker": "SportPesa Jackpot 4 SLIPS", "amount_kes": 500 }
-              ]
-            },
-            {
-              "id": "mega-jackpot", "title": "SportPesa Mega Jackpot (17 Games)", "type": "jackpot", 
-              "jackpots": [
-                { "bookmaker": "Mega Jackpot 1 SLIP", "amount_kes": 200 },
-                { "bookmaker": "Mega Jackpot 2 SLIPS", "amount_kes": 300 },
-                { "bookmaker": "Mega Jackpot 3 SLIPS", "amount_kes": 400 },
-                { "bookmaker": "Mega Jackpot 4 SLIPS", "amount_kes": 500 }
-              ]
-            }
-          ],
-          "tips": {
-            "jackpot-sportpesa-jackpot-1-slip": { "slips": ["1X21X2X1212X1"] },
-            "jackpot-sportpesa-jackpot-2-slips": { "slips": ["1X21X2X1212X1", "2X11221XX1121"] },
-            "jackpot-sportpesa-jackpot-3-slips": { "slips": ["1X21X2X1212X1", "2X11221XX1121", "111X221X2X1X2"] },
-            "jackpot-sportpesa-jackpot-4-slips": { "slips": ["1X21X2X1212X1", "2X11221XX1121", "111X221X2X1X2", "XX21X122112X1"] },
-            "jackpot-mega-jackpot-1-slip":       { "slips": ["1X212X1X211X21X21"] },
-            "jackpot-mega-jackpot-2-slips":       { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X"] },
-            "jackpot-mega-jackpot-3-slips":       { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X", "111X221X2X1X2XX12"] },
-            "jackpot-mega-jackpot-4-slips":       { "slips": ["1X212X1X211X21X21", "2X11221XX1121221X", "111X221X2X1X2XX12", "XX21X122112X11X22"] }
-          },
-          "featured_bonus": {
-            "brand": "SportPesa",
-            "title_1": "MIDWEEK",
-            "title_2": "JACKPOT",
-            "title_3": "BONUSES",
-            "tiers": [
-                { "label": "12/13 CORRECT PREDICTIONS", "amount": "1,069,828" },
-                { "label": "11/13 CORRECT PREDICTIONS", "amount": "81,398" },
-                { "label": "10/13 CORRECT PREDICTIONS", "amount": "10,797" }
-            ],
-            "combo_label": "WINNING COMBO",
-            "combo_string": "1,1,2,2,1,X,X,2,2,1,2,2,X"
-          },
-          "history": [
-            {
-              "date": "Last Weekend",
-              "categories": {
-                "Mega Jackpot (17 Games)": [
-                  { "prediction": "(JP#112X21X1221X21XX1)", "won": 15, "lost": 2, "total": 17, "bonus": true, "mask": "WWWWLWWWWLWWWWWWW" }
-                ]
-              }
-            }
-          ]
+          "packages": [],
+          "tips": {},
+          "history": []
         };
 
         let currentCountry = 'ke';
@@ -423,6 +361,24 @@
                 $('#main-app').hide(); $('#country-screen').css('display', 'flex');
             }
         });
+
+        // PAYMENT MODAL TRIGGER FUNCTION
+        window.openPaymentModal = function(pkgId, title, amount) {
+            currentPayingPackageId = pkgId;
+            expectedKesAmount = amount;
+            $('#pay-modal-title').text('Unlock ' + title);
+            
+            if (currentCountry === 'ke') {
+                $('#pay-modal-amount-ke').text('KSh ' + amount);
+                $('.pay-section').hide();
+                $('#pay-ke').show();
+            } else {
+                $('#pay-modal-amount-generic').text(formatLocalPrice(amount));
+                $('.pay-section').hide();
+                $('#pay-generic').show();
+            }
+            payModal.show();
+        };
 
         $(document).ready(function() {
             loadUnlockedState();
@@ -605,7 +561,7 @@
             const data = appDataFull.history;
             const featuredBonus = appDataFull.featured_bonus;
 
-            // Render Featured Bonus Poster if available
+            // Render Featured Bonus Poster First
             if (featuredBonus) {
                 let tiersHtml = '';
                 featuredBonus.tiers.forEach(tier => {
@@ -620,7 +576,7 @@
                 container.append(`
                     <div class="bonus-card shadow-lg">
                         <div class="bonus-content-wrapper">
-                            <div style="font-family: 'Paytone One', sans-serif; font-size: 1.5rem; margin-bottom: 20px; color: #fff; letter-spacing: -1px;">${featuredBonus.brand}</div>
+                            <div class="sportpesa-logo">${featuredBonus.brand}</div>
                             <div class="bonus-title-midweek">${featuredBonus.title_1}</div>
                             <div class="bonus-title-jackpot">${featuredBonus.title_2}</div>
                             <div class="bonus-title-bonuses">${featuredBonus.title_3}</div>
@@ -641,7 +597,7 @@
                 return; 
             }
 
-            // Render regular table history below the poster
+            // Render Standard Table History below the bonus poster
             data.forEach(day => {
                 for (const catName in day.categories) {
                     const matches = day.categories[catName];
@@ -686,15 +642,15 @@
                         }
 
                         tableRows += `<tr>
-                            <td style="vertical-align: middle;">
-                                <div style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">
+                            <td style="vertical-align: middle; text-align: left;">
+                                <span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${resultText}</span>
+                                ${detailText}
+                            </td>
+                            <td class="text-end">
+                                <div style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: right; word-break: break-all;">
                                     <span class="text-muted" style="font-size: 0.8rem; letter-spacing: 0;">Slip ${index + 1}:</span><br>
                                     ${predictionHtml}
                                 </div>
-                            </td>
-                            <td class="text-end">
-                                <span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${resultText}</span>
-                                ${detailText}
                             </td>
                         </tr>`;
                     });
@@ -710,8 +666,8 @@
                                     <table class="table m-0">
                                         <thead>
                                             <tr>
-                                                <th style="text-align: left;">Winning Slip</th>
-                                                <th class="text-end">Status</th>
+                                                <th style="text-align: left;">Status</th>
+                                                <th class="text-end">Winning Combo</th>
                                             </tr>
                                         </thead>
                                         <tbody>${tableRows}</tbody>
