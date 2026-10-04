@@ -28,6 +28,7 @@
             --red:         #FF5252;
             --gold:        #FFD700;
             --gold-glow:   rgba(255, 215, 0, 0.2);
+            --blue:        #00B0FF;
         }
 
         body {
@@ -165,6 +166,10 @@
         .copy-btn { background: var(--gold); border: none; color: #0B0E14; padding: 3px 10px; border-radius: 6px; margin-left: 8px; font-size: 0.8rem; font-weight: bold; }
         .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--green); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* History Badge Categories */
+        .badge-midweek { background: rgba(0, 176, 255, 0.15); color: var(--blue); border: 1px solid var(--blue); }
+        .badge-mega { background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
@@ -285,7 +290,7 @@
           "free_tip": { "country": "England", "league": "Premier League", "time": "Today 17:00 EAT", "teamA": "Arsenal", "teamB": "Chelsea", "pick": "Pick: 1 & Over 1.5 Goals", "confidence": "92" },
           "packages": [
             {
-              "id": "jackpot", "title": "SportPesa Jackpot (13 Games)", "type": "jackpot", 
+              "id": "jackpot", "title": "SportPesa Midweek Jackpot (13 Games)", "type": "jackpot", 
               "jackpots": [
                 { "bookmaker": "SportPesa Jackpot 1 SLIP", "amount_kes": 200 },
                 { "bookmaker": "SportPesa Jackpot 2 SLIPS", "amount_kes": 300 },
@@ -317,10 +322,10 @@
             {
               "date": "Last Weekend",
               "categories": {
-                "SportPesa Jackpot (13 Games)": [
+                "Midweek Jackpot (13 Games)": [
                   { "prediction": "(JP#1X212X1X21X21)", "won": 12, "lost": 1, "total": 13, "bonus": true, "mask": "WWWWWWWLWWWWW" }
                 ],
-                "SportPesa Mega Jackpot (17 Games)": [
+                "Mega Jackpot (17 Games)": [
                   { "prediction": "(JP#112X21X1221X21XX1)", "won": 15, "lost": 2, "total": 17, "bonus": true, "mask": "WWWWLWWWWLWWWWWWW" }
                 ]
               }
@@ -547,45 +552,6 @@
             });
         }
 
-        window.openPaymentModal = function(pkgId, title, kes) {
-            currentPayingPackageId = pkgId; expectedKesAmount = kes;
-            if (window.history && window.history.pushState) { window.history.pushState({ page: 'modal' }, ''); }
-            
-            $('#pay-modal-title').text(`Unlock: ${title}`); $('.pay-section').hide();
-            const countryData = (appData.countries || []).find(c => c.code === currentCountry);
-            const localAmountStr = formatLocalPrice(kes);
-            
-            if (currentCountry === 'ke' || (countryData && countryData.type === 'automated')) {
-                $('#pay-modal-amount-ke').text(`KSh ${kes.toLocaleString()}`);
-                $('#mpesa-message-input').val(''); $('#mpesa-verification-result').text('');
-                $('#pay-ke').show();
-            } else if (countryData && countryData.methods) {
-                const container = $('#dynamic-manual-pay'); container.empty();
-                let methodsHtml = `<h5 class="text-warning text-center mb-3">${countryData.flag} How to Send Money (${countryData.name})</h5>`;
-                countryData.methods.forEach(m => {
-                    methodsHtml += `<div class="mb-3 p-3 rounded text-start" style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);">
-                            <h6 style="color: var(--gold); font-weight: bold; margin-bottom: 10px;">${m.provider}</h6>
-                            <ol class="ps-3 mb-0" style="font-size: 0.92rem; line-height: 1.6; color: #e0e0e0;">`;
-                    m.steps.forEach(step => {
-                        let formattedStep = step.replace('{amount}', `<strong class="text-success">${localAmountStr}</strong>`).replace('{phone}', `<strong class="text-warning">${m.phone}</strong>`);
-                        methodsHtml += `<li class="mb-1">${formattedStep}</li>`;
-                    });
-                    methodsHtml += `</ol></div>`;
-                });
-                const waBase = appData.contact_details.whatsapp_url.split('?')[0];
-                const waMsg = encodeURIComponent(`Hello, I have paid ${localAmountStr} to unlock ${title} from ${countryData.name}. Here is my mobile money payment confirmation:`);
-                const waUrl = `${waBase}?text=${waMsg}`;
-                methodsHtml += `<div class="p-3 rounded text-center mb-3" style="background: rgba(0, 230, 118, 0.12); border: 1px solid var(--green);">
-                        <p class="mb-2" style="font-size:0.9rem;"><strong>After sending payment:</strong> Copy and forward your payment confirmation SMS to WhatsApp to get access instantly.</p>
-                        <a href="${waUrl}" class="btn btn-custom w-100" target="_blank">Forward SMS to WhatsApp</a>
-                    </div>`;
-                container.html(methodsHtml).show();
-            } else {
-                $('#pay-modal-amount-generic').text(localAmountStr); $('#pay-generic').show();
-            }
-            payModal.show();
-        };
-
         function renderHistory(data) {
             const container = $('#history-container'); container.empty();
             if (!data || data.length === 0) { container.html('<p class="text-center text-muted">No historical records available.</p>'); return; }
@@ -595,7 +561,13 @@
                     const matches = day.categories[catName];
                     let tableRows = '';
                     
-                    matches.forEach(m => {
+                    // Determine styling based on category name
+                    let isMega = catName.toLowerCase().includes('mega');
+                    let headerBadge = isMega 
+                        ? `<span class="badge badge-mega px-3 py-1 rounded-pill" style="font-size: 0.9rem;">🏆 ${catName}</span>` 
+                        : `<span class="badge badge-midweek px-3 py-1 rounded-pill" style="font-size: 0.9rem;">⚽ ${catName}</span>`;
+                    
+                    matches.forEach((m, index) => {
                         let wonCount = m.won;
                         let lostCount = m.lost;
                         let totalGames = m.total || ((wonCount !== undefined && lostCount !== undefined) ? wonCount + lostCount : null);
@@ -630,8 +602,13 @@
                         }
 
                         tableRows += `<tr>
-                            <td style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">${predictionHtml}</td>
-                            <td>
+                            <td style="vertical-align: middle;">
+                                <div style="font-family: monospace; font-size: 1.05rem; letter-spacing: 1.5px; color: var(--gold); text-align: left; word-break: break-all;">
+                                    <span class="text-muted" style="font-size: 0.8rem; letter-spacing: 0;">Slip ${index + 1}:</span><br>
+                                    ${predictionHtml}
+                                </div>
+                            </td>
+                            <td class="text-end">
                                 <span class="badge" style="background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeColor}; padding: 8px;">${resultText}</span>
                                 ${detailText}
                             </td>
@@ -639,12 +616,23 @@
                     });
 
                     container.append(`
-                        <div class="card mb-4 shadow-lg">
-                            <div class="card-header" style="background: rgba(255,255,255,0.05); color: #fff; font-weight: bold; border-bottom: 1px solid var(--card-border);">
-                                📅 ${day.date} — <span style="color: var(--gold);">${catName}</span>
+                        <div class="card mb-4 shadow-lg" style="border: 1px solid ${isMega ? 'rgba(255, 215, 0, 0.3)' : 'rgba(0, 176, 255, 0.3)'};">
+                            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <span style="color: #fff; font-weight: bold; font-size: 0.95rem;">📅 ${day.date}</span>
+                                ${headerBadge}
                             </div>
                             <div class="card-body p-0">
-                                <div class="table-responsive m-0"><table class="table m-0"><thead><tr><th style="text-align: left;">Winning Slip</th><th>Status</th></tr></thead><tbody>${tableRows}</tbody></table></div>
+                                <div class="table-responsive m-0">
+                                    <table class="table m-0">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: left;">Winning Slip</th>
+                                                <th class="text-end">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>${tableRows}</tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>`);
                 }
