@@ -718,7 +718,7 @@
                         const isJkpUnlocked = unlockedPackages.includes(jackpotPkgId);
                         
                         rows += `<div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span style="font-weight:700;">${j.bookmaker}</span>
+                                    <span style="font-weight:700; color: #ffffff;">${j.bookmaker}</span>
                                     ${!isJkpUnlocked ? 
                                       `<button class="btn btn-sm btn-custom" onclick="openPaymentModal('${jackpotPkgId}', '${j.bookmaker}', ${j.amount_kes})">${formatLocalPrice(j.amount_kes)}</button>` :
                                       `<span class="badge bg-success">UNLOCKED</span>`
