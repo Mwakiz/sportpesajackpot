@@ -497,19 +497,41 @@
                     container.empty();
                     
                     const isUnlocked = unlockedPackages.includes(pkgId) && currentCountry === 'ke';
-                    
-                    (data.slips || []).forEach(slipStr => {
-                        if (isUnlocked) {
-                            container.append(`<div class="p-3 mb-2 rounded text-center position-relative shadow-sm" style="background: rgba(0,230,118,0.1); border: 1px solid var(--green); color: var(--green); font-family: monospace; font-size: 1.25rem; letter-spacing: 3px; font-weight: bold;">(JP#${slipStr})</div>`);
-                        } else {
-                            // Generate random lock string of exact same length
-                            const randomSlip = Array.from({length: slipStr.length}, () => ['1','X','2'][Math.floor(Math.random()*3)]).join('');
-                            container.append(`<div class="locked-container d-block p-3 mb-2 rounded text-center shadow-sm" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--card-border); position: relative; overflow: hidden;">
-                                <span class="blurred-teaser" style="font-size: 1.25rem; font-weight: bold; letter-spacing: 3px; font-family: monospace;">(JP#${randomSlip})</span> 
-                                <span class="lock-pill" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; padding: 4px 10px;">🔒 Locked</span>
-                            </div>`);
-                        }
+
+                    // Retrieve pricing & bookmaker information for the button
+                    let priceKes = 0;
+                    let bookmakerName = 'Jackpot Tips';
+                    appData.packages.forEach(p => {
+                        (p.jackpots || []).forEach(j => {
+                            if (`jackpot-${j.bookmaker.replace(/\s+/g, '-').toLowerCase()}` === pkgId) {
+                                priceKes = j.amount_kes;
+                                bookmakerName = j.bookmaker;
+                            }
+                        });
                     });
+                    
+                    if (isUnlocked) {
+                        (data.slips || []).forEach(slipStr => {
+                            container.append(`<div class="p-3 mb-2 rounded text-center position-relative shadow-sm" style="background: rgba(0,230,118,0.1); border: 1px solid var(--green); color: var(--green); font-family: monospace; font-size: 1.25rem; letter-spacing: 3px; font-weight: bold;">(JP#${slipStr})</div>`);
+                        });
+                    } else {
+                        // Group locked slips and wrap them in a clickable container with a buy button overlay
+                        let blurredSlipsHTML = '';
+                        (data.slips || []).forEach(slipStr => {
+                            const randomSlip = Array.from({length: slipStr.length}, () => ['1','X','2'][Math.floor(Math.random()*3)]).join('');
+                            blurredSlipsHTML += `<div class="mb-2" style="font-size: 1.25rem; font-weight: bold; letter-spacing: 3px; font-family: monospace;">(JP#${randomSlip})</div>`;
+                        });
+
+                        container.append(`<div class="locked-container d-block p-4 mb-2 rounded text-center shadow-sm" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--card-border); position: relative; overflow: hidden; cursor: pointer;" onclick="openPaymentModal('${pkgId}', '${bookmakerName}', ${priceKes})">
+                            <div class="blurred-teaser" style="filter: blur(5px); opacity: 0.4;">
+                                ${blurredSlipsHTML}
+                            </div>
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(11, 14, 20, 0.5); z-index: 10;">
+                                <span style="font-size: 2rem; margin-bottom: 10px;">🔒</span>
+                                <button class="btn btn-custom px-4 py-2" style="font-size: 1.1rem; pointer-events: none;">Unlock for ${formatLocalPrice(priceKes)}</button>
+                            </div>
+                        </div>`);
+                    }
                 }
             });
         }
